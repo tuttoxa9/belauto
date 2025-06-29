@@ -34,11 +34,26 @@ export function CarEvaluationModal({ isOpen, onClose }: CarEvaluationModalProps)
     e.preventDefault()
     setIsSubmitting(true)
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    try {
+      const response = await fetch('/api/telegram/evaluation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
 
-    // Redirect to success page
-    router.push("/evaluation-success")
+      if (!response.ok) {
+        throw new Error('Failed to send evaluation form')
+      }
+
+      // Redirect to success page
+      router.push("/evaluation-success")
+    } catch (error) {
+      console.error('Error sending evaluation form:', error)
+      alert('Произошла ошибка при отправке заявки. Попробуйте еще раз.')
+      setIsSubmitting(false)
+    }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

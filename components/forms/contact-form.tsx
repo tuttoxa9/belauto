@@ -27,17 +27,36 @@ export function ContactForm({ carInfo }: ContactFormProps) {
     e.preventDefault()
     setIsSubmitting(true)
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    try {
+      const response = await fetch('/api/telegram/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          carInfo: carInfo
+        }),
+      })
 
-    setIsSubmitting(false)
-    setIsSubmitted(true)
+      if (!response.ok) {
+        throw new Error('Failed to send form')
+      }
 
-    // Reset form after 3 seconds
-    setTimeout(() => {
-      setIsSubmitted(false)
-      setFormData({ name: "", phone: "", email: "", message: "" })
-    }, 3000)
+      setIsSubmitted(true)
+
+      // Reset form after 3 seconds
+      setTimeout(() => {
+        setIsSubmitted(false)
+        setFormData({ name: "", phone: "", email: "", message: carInfo ? `Интересует автомобиль: ${carInfo}` : "" })
+      }, 3000)
+    } catch (error) {
+      console.error('Error sending form:', error)
+      // В случае ошибки показываем уведомление или можно добавить toast
+      alert('Произошла ошибка при отправке формы. Попробуйте еще раз.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
